@@ -29,6 +29,9 @@ readonly BOOT2DOCKER_REMOTE_SHELL_CMD="ssh -i $BOOT2DOCKER_SSH_KEY -o StrictHost
 readonly BOOT2DOCKER_USER="docker"
 readonly BOOT2DOCKER_SSH_URL="$BOOT2DOCKER_USER@$DOCKER_HOST_NAME"
 
+# docker-machine constants
+readonly DOCKER_MACHINE_NAME="virtualbox"
+
 # docker-compose constants
 readonly DEFAULT_COMPOSE_FILE="docker-compose.yml"
 
@@ -71,6 +74,33 @@ function log_instructions {
 }
 
 #
+# Usage: vm_command COMMAND
+#
+# Returns the ssh, ip or other command specific to the chosed virtualization
+# tool.
+#
+# Examples:
+#
+# $(vm_command ssh) echo foo bar quux
+#   runs 'echo foo bar quux' in an SSH session to the VM.
+#
+function vm_command {
+  local prefix="$VIRTUALIZATION_TOOL"
+  local command="$1"
+  local suffix=""
+
+  case "$VIRTUALIZATION_TOOL" in
+    "boot2docker")
+      # boot2docker specific per-command tweaks
+      ;;
+    "docker-machine")
+      suffix="$DOCKER_MACHINE_NAME"
+      # docker-machine specific per-command tweaks
+      ;;
+  esac
+  echo "$prefix $command $suffix"
+}
+
 # Usage: index_of VALUE ARRAY
 #
 # Returns the first index where VALUE appears in ARRAY. If ARRAY does not
