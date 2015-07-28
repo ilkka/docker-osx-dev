@@ -43,6 +43,7 @@ readonly RSYNC_FLAGS=("archive" "verbose" "delete" "omit-dir-times" "inplace" "w
 PATHS_TO_SYNC=()
 EXCLUDES=()
 CURRENT_LOG_LEVEL="$DEFAULT_LOG_LEVEL"
+VIRTUALIZATION_TOOL="boot2docker"
 
 # Helper function to log an INFO message. See the log function for details.
 function log_info {
@@ -461,6 +462,28 @@ function configure_excludes {
 }
 
 #
+# Usage: configure_virtualization_tool USE_DOCKER_MACHINE USE_BOOT2DOCKER
+#
+# Configure the global virtualization tool variable. Values should be 0 or 1.
+# Both cannot be 0 or 1.
+#
+function configure_virtualization_tool {
+  local readonly use_docker_machine="$1"
+  local readonly use_boot2docker="$2"
+  
+  if [[ $use_docker_machine == $use_boot2docker ]]; then
+    log_error "Docker Machine and boot2docker are mutually exclusive"
+    exit 1
+  elif [[ $use_docker_machine -eq 1 ]]; then
+    log_debug "Using Docker Machine"
+    VIRTUALIZATION_TOOL="docker-machine"
+  else
+    log_debug "Using boot2docker"
+    VIRTUALIZATION_TOOL="boot2docker"
+  fi
+}
+
+#
 # Usage handle_command ARGS ...
 #
 # Parses ARGS to kick off this script. See the output of the instructions 
@@ -520,7 +543,8 @@ function handle_command {
   configure_log_level "$log_level"
   configure_paths_to_sync "$docker_compose_file" "${paths_to_sync[@]}"
   configure_excludes "$ignore_file" "${excludes[@]}"
-
+  configure_virtualization_tool "$use_docker_machine" "$use_boot2docker"
+  
   watch_and_sync
 }
 
