@@ -331,7 +331,7 @@ function watch_and_sync {
 # Prints the usage instructions for this script to stdout.
 # 
 function instructions {
-  echo -e "Usage: docker-osx-dev [-s PATH] [-e PATH] [-l LOG_LEVEL] [-c COMPOSE_FILE] [-i IGNORE_FILE] [-h]"
+  echo -e "Usage: docker-osx-dev [-s PATH] [-e PATH] [-l LOG_LEVEL] [-c COMPOSE_FILE] [-i IGNORE_FILE] [-d | -b] [-h]"
   echo -e 
   echo -e "Options, if supplied, have the following meanings:" 
   echo -e 
@@ -340,12 +340,15 @@ function instructions {
   echo -e "-c COMPOSE_FILE\t\tRead in this docker-compose file and sync any volumes within it. Default: $DEFAULT_COMPOSE_FILE"
   echo -e "-c IGNORE_FILE\t\tRead in this ignore file and exclude any paths within it while syncing. Default: $DEFAULT_IGNORE_FILE"
   echo -e "-l LOG_LEVEL\t\tSpecify the logging level. One of: ${LOG_LEVELS[@]}. Default: ${DEFAULT_LOG_LEVEL}"
+  echo -e "-d\t\t\tUse docker-machine"
+  echo -e "-b\t\t\tUse boot2docker (default)"
   echo -e "-h\t\t\tPrint this help text."
   echo -e 
   echo -e "Overview:"
   echo -e 
-  echo -e "docker-osx-dev is a script you can use to sync folders to the Boot2Docker VM using rsync."
-  echo -e "It's an alternative to using VirtualBox shared folders, which are agonizingly slow and break file watchers."
+  echo -e "docker-osx-dev is a script you can use to sync folders to the Boot2Docker or VirtualBox"
+  echo -e "Docker Machine VM using rsync. It's an alternative to using VirtualBox shared folders,"
+  echo -e "which are agonizingly slow and break file watchers."
   echo -e "For more info, see: https://github.com/brikis98/docker-osx-dev"
   echo -e
   echo -e "Example workflow:"
