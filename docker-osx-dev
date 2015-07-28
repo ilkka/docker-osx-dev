@@ -318,7 +318,7 @@ function initial_sync {
   local readonly ssh_cmd="$mkdir_string && $chown_string"
 
   log_debug "Creating parent directories in Docker VM: $ssh_cmd"
-  boot2docker ssh "$ssh_cmd"
+  $(vm_command ssh) "$ssh_cmd"
 
   sync "${paths_to_sync[@]}"
   log_info "Initial sync done"
