@@ -24,8 +24,6 @@ readonly DEFAULT_LOG_LEVEL="$LOG_LEVEL_INFO"
 
 # Boot2Docker constants
 readonly DOCKER_HOST_NAME="dockerhost"
-readonly BOOT2DOCKER_SSH_KEY=$(boot2docker cfg | grep "^SSHKey = " | sed -e 's/^SSHKey = "\(.*\)"/\1/')
-readonly BOOT2DOCKER_REMOTE_SHELL_CMD="ssh -i $BOOT2DOCKER_SSH_KEY -o StrictHostKeyChecking=no"
 readonly BOOT2DOCKER_USER="docker"
 readonly BOOT2DOCKER_SSH_URL="$BOOT2DOCKER_USER@$DOCKER_HOST_NAME"
 
@@ -101,6 +99,25 @@ function vm_command {
   echo "$prefix $command $suffix"
 }
 
+#
+# Usage: boot2docker_ssh_key
+#
+# Return the path to the boot2docker SSH key.
+#
+function boot2docker_ssh_key {
+  echo $(boot2docker cfg | grep "^SSHKey = " | sed -e 's/^SSHKey = "\(.*\)"/\1/')
+}
+
+#
+# Usage: docker_machine_ssh_key
+#
+# Return the path to the docker-machine SSH key.
+#
+function docker_machine_ssh_key {
+  echo $(docker-machine inspect "$DOCKER_MACHINE_NAME" | egrep -m1 StorePath | sed 's/.*: "\(.*\)",/\1/')/id_rsa
+}
+
+#
 # Usage: index_of VALUE ARRAY
 #
 # Returns the first index where VALUE appears in ARRAY. If ARRAY does not
@@ -223,8 +240,21 @@ function do_rsync {
 
   local readonly flags="${RSYNC_FLAGS[@]/#/--}"
   local readonly excludes="${EXCLUDES[@]/#/--exclude }"
-  local readonly rsh_flag="--rsh=\"$BOOT2DOCKER_REMOTE_SHELL_CMD\""
 
+  local ssh_key=""
+  
+  case "$VIRTUALIZATION_TOOL" in
+    "boot2docker")
+      ssh_key=$(boot2docker_ssh_key)
+      ;;
+    "docker-machine")
+      ssh_key=$(docker_machine_ssh_key)
+      ;;
+  esac
+
+  local readonly rsh="ssh -i $ssh_key -o StrictHostKeyChecking=no"
+  local readonly rsh_flag="--rsh=\"$rsh\""
+  
   local readonly rsync_cmd="rsync $flags $excludes $rsh_flag $path_to_sync $BOOT2DOCKER_SSH_URL:$parent_folder"
   log_debug "$rsync_cmd"
 
