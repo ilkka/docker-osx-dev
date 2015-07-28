@@ -472,8 +472,10 @@ function handle_command {
   local docker_compose_file=""
   local ignore_file=""
   local log_level=""
-
-  while getopts ":s::e::c::l::i::h" opt; do
+  local use_boot2docker=1
+  local use_docker_machine=0
+  
+  while getopts ":s::e::c::l::i::dbh" opt; do
     case "$opt" in
       s)
         paths_to_sync+=("$OPTARG")
@@ -489,6 +491,14 @@ function handle_command {
         ;;
       l)
         log_level="$OPTARG"
+        ;;
+      d)
+        use_docker_machine=1
+        use_boot2docker=0
+        ;;
+      b)
+        use_docker_machine=0
+        use_boot2docker=1
         ;;
       h)
         instructions
